@@ -3109,7 +3109,8 @@ ass_start_frame(ASS_Renderer *render_priv, ASS_Track *track,
     }
     render_priv->par_scale_x = par;
 
-    render_priv->prev_images_root = render_priv->images_root;
+    render_priv->prev_images_root = render_priv->prev_images_root_using;
+    render_priv->prev_images_root_using = render_priv->images_root;
     render_priv->images_root = NULL;
 
     check_cache_limits(render_priv, &render_priv->cache);
@@ -3371,7 +3372,6 @@ static int ass_detect_change(ASS_Renderer *priv)
 ASS_Image *ass_render_frame(ASS_Renderer *priv, ASS_Track *track,
                             long long now, int *detect_change)
 {
-    priv->prev_images_root_remove = priv->prev_images_root;
     // init frame
     if (!ass_start_frame(priv, track, now)) {
         if (detect_change)
@@ -3426,8 +3426,7 @@ ASS_Image *ass_render_frame(ASS_Renderer *priv, ASS_Track *track,
         *detect_change = ass_detect_change(priv);
 
     // free the previous image list
-    // ass_frame_unref(priv->prev_images_root);
-    ass_frame_unref(priv->prev_images_root_remove);
+    ass_frame_unref(priv->prev_images_root);
     priv->prev_images_root = NULL;
 
     return priv->images_root;
